@@ -1,7 +1,7 @@
 import asyncio
 import os
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import Message
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.filters import Command
 
 TOKEN = os.getenv("TOKEN")
@@ -11,19 +11,33 @@ dp = Dispatcher()
 
 user_data = {}
 
+# 🔹 КНОПКА
+keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="🔄 Сбросить счётчик")]
+    ],
+    resize_keyboard=True
+)
+
 @dp.message(Command("start"))
 async def start(message: Message):
-    await message.answer("Отправь текст, затем 2 ссылки (каждое сообщение отдельно)")
+    await message.answer(
+        "Отправь текст, затем 2 ссылки (каждое сообщение отдельно)",
+        reply_markup=keyboard
+    )
 
-@dp.message(Command("reset"))
-async def reset_counter(message: Message):
+# 🔹 СБРОС ЧЕРЕЗ КНОПКУ
+@dp.message(lambda message: message.text == "🔄 Сбросить счётчик")
+async def reset_button(message: Message):
     user_id = message.from_user.id
+
     user_data[user_id] = {
         "step": 0,
         "data": [],
         "counter": 1
     }
-    await message.answer("Счётчик сброшен")
+
+    await message.answer("Счётчик сброшен 🔄")
 
 @dp.message()
 async def handle_message(message: Message):
